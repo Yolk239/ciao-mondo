@@ -1,0 +1,70 @@
+import os
+import time
+import sys
+from collections import Counter
+
+os.chdir("/Users/dmena/Documents/Personal/fun/")
+
+answers = "nyt-answers.txt"
+guesses = "nyt-guesses.txt"
+
+def load_and_tidy(path):
+    with open(path, "r") as f:
+        return[w.strip().upper() for w in f if w.strip()]
+
+solutions = load_and_tidy(answers)
+bank = load_and_tidy(guesses)
+
+all_words = []
+all_words.extend(solutions)
+for g in bank:
+    if g not in all_words:
+        all_words.append(g)
+
+only_words = True
+if only_words:
+    entry = solutions[:]
+else:
+    entry = all_words[:]
+
+def green_yellow_grey(entry: str, solution: str) -> str:
+    fb = ['.'] * 5
+    solution_number = Counter(solution) 
+    #green
+    for i, ch in enumerate(entry):
+        if ch == solution[i]:
+            fb[i] = 'GREEN'
+            solution_number[ch] -= 1
+    #yellow
+    for i, ch in enumerate(entry):
+        if fb[i] == '.' and solution_number.get(ch, 0) > 0: #Not green, more than 1 character in solution 
+            fb[i] = 'YELLOW'
+            solution_number[ch] -= 1            
+    return ''.join(fb)
+
+def remaining_LS(entry: str, solutions: list) -> float: #solutions w/ fb of entry
+    split = {} 
+    for solution in solutions:
+        fb = green_yellow_grey(entry, solution)
+        split[fb] = split.get(fb, 0) + 1 #count of solns w/fb of entry
+    s = sum(n*n for n in split.values()) 
+    return s / len(solutions) #unevenness are the split
+
+start = time.time()
+
+results = []
+for i, g in enumerate(entry, start = 1):
+    remain = remaining_LS(g, solutions)
+    results.append((remain, g))
+    if i % 100 == 0 or i == len(entry):
+        elapsed = time.time() - start
+
+results.sort()
+
+print(f"Rankings of {len(guesses)} guesses")
+print("best 5 guesses:")
+for avg, g in results[:5]:
+    print(f"{g}\t{avg:.4f}")
+print("worst 5 guesses:")
+for avg, g in results[-5:]:
+    print(f"{g}\t{avg:.4f}")
