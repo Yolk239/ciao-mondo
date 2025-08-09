@@ -1,3 +1,2 @@
-# hello-world
-This process is for practicing the GitHub Flow.
-My name is Daya. I'm 26 years old. I'm from Bronx, NY. 
+# HavingFun
+This is what a terrible github repository looks like. Leave me alone, I'm a broke grad student trying to have fun.
